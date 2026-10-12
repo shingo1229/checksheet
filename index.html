@@ -25,10 +25,10 @@ input[type=text],input[type=date],input[type=time],input[type=number],select,tex
 .tabs button.on{background:var(--main);color:var(--mainink)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .item .t{font-weight:600}.item .c{font-size:13px;color:var(--sub);margin:2px 0 8px}
-.seg{display:flex;gap:6px}
-.seg label{flex:1}.seg input{position:absolute;opacity:0}
-.seg span{display:block;text-align:center;padding:10px 4px;border:1px solid var(--line);border-radius:8px;font-weight:700}
-.seg input:checked+span.g{background:var(--ok);color:#fff;border-color:var(--ok)}
+.seg{display:flex;gap:6px;align-items:stretch}
+.seg label{flex:1 1 0;min-width:0;display:flex;position:relative}.seg input{position:absolute;opacity:0}
+.seg span{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px 4px;border:1px solid var(--line);border-radius:8px;font-weight:700}
+#judge span{white-space:nowrap;font-size:min(15px,3.8vw);padding:14px 0}.seg input:checked+span.g{background:var(--ok);color:#fff;border-color:var(--ok)}
 .seg input:checked+span.b{background:var(--ng);color:#fff;border-color:var(--ng)}
 .seg input:checked+span.n{background:var(--sub);color:#fff;border-color:var(--sub)}
 .seg input:focus-visible+span{outline:3px solid var(--main)}
