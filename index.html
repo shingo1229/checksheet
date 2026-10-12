@@ -210,7 +210,7 @@ $("pdfs").onclick=async function(e){var b=e.target.closest("button");if(!b)retur
  catch(x){if(!x||x.name!=="AbortError")err.textContent="共有に失敗しました。「端末に保存」を使ってください。"}};
 $("make").onclick=async function(){var err=$("err");err.textContent="";snap();if(!D.length){err.textContent="器具か部屋を追加してください。";return}
 tried=true;var lines=[],first=-1,nr=0,ns=0;
-D.forEach(function(d,k){var o=issues(d),n=d.type==="room"?++nr:++ns;if(o.length){if(first<0)first=k;lines.push("・"+(d.type==="room"?"部屋 ":"器具 ")+n+"「"+devName(k)+"」："+o.join("、"))}});
+D.forEach(function(d,k){var o=issues(d),n=d.type==="room"?++nr:++ns;if(o.length){if(first<0||k===ai)first=(first>=0&&first===ai)?first:k;lines.push("・"+(d.type==="room"?"部屋 ":"器具 ")+n+"「"+devName(k)+"」："+o.join("、"))}});
 var g=[];if(!$("inspector").value.trim())g.push("検査員名");if(!drawn)g.push("ご担当者のサイン");if(g.length)lines.push("・全体（点検情報・サイン）："+g.join("、"));
 if(lines.length){err.textContent="入力の抜けがあります。赤い枠の項目を確認してください。\n"+lines.join("\n");if(first>=0&&first!==ai)loadDev(first);else renderDevs();setTimeout(function(){var m=document.querySelector("#devArea .miss")||document.querySelector(".miss");if(m)m.scrollIntoView({block:"center",behavior:"smooth"})},60);return}var btn=$("make");btn.disabled=true;btn.textContent="作成中…";PDFS=[];try{for(var k=0;k<D.length;k++){var b=await genPdf(D[k]);PDFS.push({name:"点検"+(k+1)+"_"+devName(k).replace(/[^\w\u3040-\u30ff\u4e00-\u9fff]/g,"")+"_"+($("date").value||""),blob:b})}showPdfs()}catch(e){err.textContent="PDFの作成に失敗しました。もう一度お試しください。"}finally{btn.disabled=false;btn.textContent="全器具のPDFを作成"}};
 
