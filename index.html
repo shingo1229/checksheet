@@ -187,7 +187,7 @@ function renderPh(){var p=D[ai].ph;$("thumbs").innerHTML=p.map(function(s,i){ret
 function shrink(f){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,1200/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext("2d").drawImage(im,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.8))};im.onerror=rej;im.src=r.result};r.onerror=rej;r.readAsDataURL(f)})}
 $("photos").onchange=async function(e){var fs=Array.prototype.slice.call(e.target.files),d=D[ai],err=$("err"),room=5-d.ph.length;err.textContent="";if(fs.length>room)err.textContent="写真は1器具につき5枚までです。先頭の"+room+"枚だけ追加しました。";for(var k=0;k<Math.min(fs.length,room);k++){try{d.ph.push(await shrink(fs[k]))}catch(x){err.textContent="読み込めない写真がありました。"}}e.target.value="";renderPh()};
 $("thumbs").onclick=function(e){var b=e.target.closest("button");if(!b)return;D[ai].ph.splice(+b.getAttribute("data-x"),1);renderPh()};
-function addDev(t){snap();var p=ai>=0&&D[ai]?D[ai].room:"",d=mk(t);d.room=p||"";D.push(d);loadDev(D.length-1)}
+function addDev(t){snap();var p=ai>=0&&D[ai]?D[ai].room:"",d=mk(t);d.room=p||"";D.push(d);loadDev(D.length-1);var rm=$("room");try{rm.scrollIntoView({block:"center"});rm.focus();rm.select()}catch(x){}}
 $("addS").onclick=function(){addDev("swing")};
 $("addR").onclick=function(){addDev("room")};
 var armIdx=-1,armT=null;
