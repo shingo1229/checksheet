@@ -56,6 +56,7 @@ input[type=date],input[type=time]{min-width:0;max-width:100%;-webkit-appearance:
 .miss{outline:2px solid var(--ng);outline-offset:2px;border-radius:8px}.item.miss{border-color:var(--ng)}.item.miss::after{content:attr(data-miss);display:block;color:var(--ng);font-size:13px;font-weight:700;margin-top:6px}
 .tubes{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}.tubes label{display:flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid var(--line);border-radius:18px}.tubes label:has(input:checked){background:var(--main);color:var(--mainink);border-color:var(--main)}
 @media (orientation:landscape) and (max-height:600px){.card.fs{display:grid;grid-template-columns:minmax(0,1fr) 190px;grid-template-rows:repeat(5,auto) 1fr;column-gap:8px;row-gap:6px}.card.fs #bstage{grid-column:1;grid-row:1/-1}.card.fs>*:not(#bstage){grid-column:2}.card.fs .pal{flex-wrap:wrap;overflow-x:hidden;overflow-y:auto;max-height:48vh}.card.fs .pal button{flex:0 0 calc(50% - 3px);width:auto}}
+.wk{display:none;margin-top:8px;padding:8px 10px;border:1px dashed var(--line);border-radius:8px}.item.bad .wk,.wk.always{display:block}.wkt{font-size:13px;color:var(--sub);margin-bottom:4px}.wl{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;padding:5px 0}.wl label{display:flex;align-items:center;gap:8px}.wl input[type=checkbox]{width:22px;height:22px;flex:none}.wl input.nm{width:88px;padding:6px 8px;text-align:right}
 </style>
 </head>
 <body>
@@ -154,8 +155,8 @@ function build(){
  IT.forEach(function(it,i){
   if(it[0]!==g){g=it[0];h+='<h2 style="margin-top:14px">'+esc(g)+'</h2>'}
   h+='<div class="card item" id="it'+i+'"><div class="t">'+esc(it[1])+'</div>'+(it[2]?'<div class="c">'+esc(it[2])+'</div>':'');
-  if(it[3]==="gen"){h+='<select data-i="'+i+'" class="gen"><option value="">選択してください</option>'+GENS.map(function(x){return'<option>'+x+'</option>'}).join("")+'</select>'}
-  else{h+='<div class="seg"><label><input type="radio" name="r'+i+'" value="良"><span class="g">良</span></label><label><input type="radio" name="r'+i+'" value="不良"><span class="b">不良</span></label>'+(it[3]==="t"?"":'<label><input type="radio" name="r'+i+'" value="該当なし"><span class="n">該当なし</span></label>')+'</div><textarea placeholder="不良の内容・実施した作業を入力" data-c="'+i+'"></textarea>'}
+  if(it[3]==="gen"){h+='<select data-i="'+i+'" class="gen"><option value="">選択してください</option>'+GENS.map(function(x){return'<option>'+x+'</option>'}).join("")+'</select>'+wkHtml(it,i)}
+  else{h+='<div class="seg"><label><input type="radio" name="r'+i+'" value="良"><span class="g">良</span></label><label><input type="radio" name="r'+i+'" value="不良"><span class="b">不良</span></label>'+(it[3]==="t"?"":'<label><input type="radio" name="r'+i+'" value="該当なし"><span class="n">該当なし</span></label>')+'</div>'+wkHtml(it,i)+'<textarea placeholder="コメント（不良の内容・実施した作業など）" data-c="'+i+'"></textarea>'}
   if(it[1]==="熱収縮チューブが付いている")h+='<div class="tubes" data-tb="'+i+'"><span style="font-size:13px;color:var(--sub)">チューブ色（複数選択可）</span><label><input type="checkbox" value="緑">緑</label><label><input type="checkbox" value="青">青</label><label><input type="checkbox" value="黒">黒</label></div>';
   h+='</div>'});
  $("items").innerHTML=h;
@@ -176,11 +177,11 @@ $("clear").onclick=function(){ctx.clearRect(0,0,sig.width,sig.height);drawn=fals
 
 var D=[],ai=-1,PDFS=[];
 function mk(t){return{type:t,room:"",product:"",gc:"",rc:"",v:{},c:{},j:"",reason:"",LI:[],ph:[],spec:""}}
-function collect(d){var rows=[],miss=0;ITEMS(d.type,d.product,d.rope||"1").forEach(function(it){var q=kk(it),v=d.v[q]||"";var tb=d.v[q+"#tube"]||"",tu=it[1]==="熱収縮チューブが付いている";if(!v||(tu&&v==="良"&&!tb))miss++;var cm=d.c[q]||"";if(tu&&tb&&v!=="該当なし")cm="チューブ色："+tb+(cm?"／":"")+cm;rows.push([it[0],it[1],v,cm])});return{rows:rows,miss:miss}}
-function snap(){if(ai<0)return;var v=Object.assign({},D[ai].v),c=Object.assign({},D[ai].c),j=document.querySelector('input[name="j"]:checked');IT.forEach(function(it,i){var k=kk(it);if(it[3]==="gen")v[k]=$("items").querySelector(".gen").value;else{var r=document.querySelector('input[name="r'+i+'"]:checked');v[k]=r?r.value:"";c[k]=document.querySelector('[data-c="'+i+'"]').value;var tb=document.querySelector('[data-tb="'+i+'"]');if(tb)v[k+"#tube"]=Array.prototype.map.call(tb.querySelectorAll("input:checked"),function(x){return x.value}).join("、")}});D[ai]={type:cur,room:$("room").value,product:pname(),gc:$("gcount").value,rc:$("rcount").value,v:v,c:c,j:j?j.value:"",reason:$("reason").value,LI:LI,ph:D[ai].ph||[],spec:$("spec").value,rope:(document.querySelector('input[name="rope"]:checked')||{}).value||(D[ai].rope||"1")}}
+function collect(d){var rows=[],miss=0;ITEMS(d.type,d.product,d.rope||"1").forEach(function(it){var q=kk(it),v=d.v[q]||"";var tb=d.v[q+"#tube"]||"",tu=it[1]==="熱収縮チューブが付いている";if(!v||(tu&&v==="良"&&!tb))miss++;var cm=d.c[q]||"";if(tu&&tb&&v!=="該当なし")cm="チューブ色："+tb+(cm?"／":"")+cm;var w=(v==="不良"||it[3]==="gen")?wLines(it,d.v[q+"#w"]):"";if(w)cm=w+(cm?"\n":"")+cm;rows.push([it[0],it[1],v,cm])});return{rows:rows,miss:miss}}
+function snap(){if(ai<0)return;var v=Object.assign({},D[ai].v),c=Object.assign({},D[ai].c),j=document.querySelector('input[name="j"]:checked');IT.forEach(function(it,i){var k=kk(it);if(it[3]==="gen")v[k]=$("items").querySelector(".gen").value;else{var r=document.querySelector('input[name="r'+i+'"]:checked');v[k]=r?r.value:"";c[k]=document.querySelector('[data-c="'+i+'"]').value;var tb=document.querySelector('[data-tb="'+i+'"]');if(tb)v[k+"#tube"]=Array.prototype.map.call(tb.querySelectorAll("input:checked"),function(x){return x.value}).join("、")}});IT.forEach(function(it,i){v[kk(it)+"#w"]=readW(i)});D[ai]={type:cur,room:$("room").value,product:pname(),gc:$("gcount").value,rc:$("rcount").value,v:v,c:c,j:j?j.value:"",reason:$("reason").value,LI:LI,ph:D[ai].ph||[],spec:$("spec").value,rope:(document.querySelector('input[name="rope"]:checked')||{}).value||(D[ai].rope||"1")}}
 function devName(i){var d=D[i],nm=function(x){if(x.type==="room")return(x.room||"").trim()?x.room.trim()+"（天井ロープ等）":SHEETS.room.name;return x.product||SHEETS[x.type].name},b=nm(d),n=0,t=0;D.forEach(function(x,j){if(nm(x)===b){t++;if(j<=i)n++}});return t>1?b+" No."+n:b}
 function renderDevs(){var a=[],b=[],na=0,nb=0;D.forEach(function(d,i){var rm=d.type==="room",n=rm?++nb:++na,h='<div class="dv"><button type="button" data-d="'+i+'" class="tb '+(i===ai?'on':'')+'">'+n+'. '+esc(devName(i))+(tried&&issues(D[i]).length?' ⚠':'')+'</button><button type="button" data-x="'+i+'" class="dx'+(armIdx===i?' arm':'')+'" aria-label="'+esc(devName(i))+'を削除">'+(armIdx===i?'削除':'×')+'</button></div>';(rm?b:a).push(h)});var none='<div style="font-size:13px;color:var(--sub);margin-bottom:8px">まだありません</div>';var h1=a.join("")||none,h2=b.join("")||none;if(h1!==window._h1){$("devs").innerHTML=h1;window._h1=h1}if(h2!==window._h2){$("rooms").innerHTML=h2;window._h2=h2}$("devArea").style.display=D.length?"":"none";if(!D.length)["prodWrap","specWrap","layoutWrap"].forEach(function(x){$(x).classList.add("hide")});$("gcount").value=na;$("rcount").value=nb;renderChips();if(tried&&ai>=0&&D[ai])markMiss()}
-function loadDev(i){ai=i;var d=D[i];cur=d.type;build();var rr=document.querySelector('input[name="rope"][value="'+(d.rope||"1")+'"]');if(rr)rr.checked=true;IT.forEach(function(it,k){var q=kk(it);if(it[3]==="gen")$("items").querySelector(".gen").value=d.v[q]||"";else{if(d.v[q]){var r=document.querySelector('input[name="r'+k+'"][value="'+d.v[q]+'"]');if(r){r.checked=true;if(d.v[q]==="不良")$("it"+k).classList.add("bad")}}document.querySelector('[data-c="'+k+'"]').value=d.c[q]||"";var tb=document.querySelector('[data-tb="'+k+'"]');if(tb){var tv=(d.v[q+"#tube"]||"").split("、");Array.prototype.forEach.call(tb.querySelectorAll("input"),function(x){x.checked=tv.indexOf(x.value)>=0})}}});setProduct(d.product||"");$("gcount").value=d.gc||"";$("rcount").value=d.rc||"";$("reason").value=d.reason||"";$("room").value=d.room||"";var jr=document.querySelector('input[name="j"]:checked');if(jr)jr.checked=false;if(d.j){var q=document.querySelector('input[name="j"][value="'+d.j+'"]');if(q)q.checked=true}$("spec").value=d.spec||"";updSpec();LI=d.LI;sel=-1;drawLayout();prog();renderDevs();renderPh()}
+function loadDev(i){ai=i;var d=D[i];cur=d.type;build();var rr=document.querySelector('input[name="rope"][value="'+(d.rope||"1")+'"]');if(rr)rr.checked=true;IT.forEach(function(it,k){var q=kk(it);if(it[3]==="gen")$("items").querySelector(".gen").value=d.v[q]||"";else{if(d.v[q]){var r=document.querySelector('input[name="r'+k+'"][value="'+d.v[q]+'"]');if(r){r.checked=true;if(d.v[q]==="不良")$("it"+k).classList.add("bad")}}document.querySelector('[data-c="'+k+'"]').value=d.c[q]||"";var tb=document.querySelector('[data-tb="'+k+'"]');if(tb){var tv=(d.v[q+"#tube"]||"").split("、");Array.prototype.forEach.call(tb.querySelectorAll("input"),function(x){x.checked=tv.indexOf(x.value)>=0})}}});IT.forEach(function(it,k){writeW(k,d.v[kk(it)+"#w"])});setProduct(d.product||"");$("gcount").value=d.gc||"";$("rcount").value=d.rc||"";$("reason").value=d.reason||"";$("room").value=d.room||"";var jr=document.querySelector('input[name="j"]:checked');if(jr)jr.checked=false;if(d.j){var q=document.querySelector('input[name="j"][value="'+d.j+'"]');if(q)q.checked=true}$("spec").value=d.spec||"";updSpec();LI=d.LI;sel=-1;drawLayout();prog();renderDevs();renderPh()}
 function renderPh(){var p=D[ai].ph;$("thumbs").innerHTML=p.map(function(s,i){return'<div class="th"><img src="'+s+'" alt=""><button type="button" data-x="'+i+'" aria-label="写真を削除">×</button></div>'}).join("");$("phc").textContent=p.length+" / 5 枚";if(tried&&ai>=0)renderDevs()}
 function shrink(f){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,1200/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext("2d").drawImage(im,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.8))};im.onerror=rej;im.src=r.result};r.onerror=rej;r.readAsDataURL(f)})}
 $("photos").onchange=async function(e){var fs=Array.prototype.slice.call(e.target.files),d=D[ai],err=$("err"),room=5-d.ph.length;err.textContent="";if(fs.length>room)err.textContent="写真は1器具につき5枚までです。先頭の"+room+"枚だけ追加しました。";for(var k=0;k<Math.min(fs.length,room);k++){try{d.ph.push(await shrink(fs[k]))}catch(x){err.textContent="読み込めない写真がありました。"}}e.target.value="";renderPh()};
@@ -217,7 +218,7 @@ async function genPdf(D0){
  var d=collect(D0),j={value:D0.j},cur=D0.type,S=SHEETS[cur],v=function(i){return esc($(i).value)};
  var meta=[["点検日",v("date")],["時間",v("start")+" ～ "+v("end")],["施設名",v("facility")],["部屋名",esc(D0.room||"")],["検査員名",v("inspector")]];
  if(cur==="swing")meta.push(["製品名",esc(devName(D.indexOf(D0)))]);meta.push(["器具数／部屋数",D.filter(function(x){return x.type!=="room"}).length+" 器具／"+D.filter(function(x){return x.type==="room"}).length+" 部屋"]);if(D0.spec)meta.push(["仕様",esc(D0.spec)]);
- var tr="";d.rows.forEach(function(r){tr+='<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td><td style="text-align:center;font-weight:700;color:'+(r[2]==="不良"?"#c2402a":"#111")+'">'+esc(r[2])+'</td><td>'+esc(r[3])+'</td></tr>'});
+ var tr="";d.rows.forEach(function(r){tr+='<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td><td style="text-align:center;font-weight:700;color:'+(r[2]==="不良"?"#c2402a":"#111")+'">'+esc(r[2])+'</td><td><div style="white-space:pre-line">'+esc(r[3])+'</div></td></tr>'});
  var lay=cur==="room"?layoutHtml(D0.LI):"";var ph=D0.ph.length?'<div style="margin-top:12px;font-weight:700">写真</div><div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;margin-top:4px">'+D0.ph.map(function(s){return'<img src="'+s+'" style="width:240px;height:auto;border:1px solid #999">'}).join("")+'</div>':"";var st=$("stage");
  st.innerHTML='<div id="rep" style="width:794px;padding:36px;background:#fff;color:#111;font:13px/1.55 sans-serif"><div style="font-size:17px;font-weight:700;margin-bottom:10px">'+esc(S.title)+'</div><table style="width:100%;border-collapse:collapse;margin-bottom:10px">'+meta.map(function(m){return'<tr><td style="border:1px solid #999;padding:4px 8px;width:25%;background:#eee">'+m[0]+'</td><td style="border:1px solid #999;padding:4px 8px">'+m[1]+'</td></tr>'}).join("")+'</table><table style="width:100%;border-collapse:collapse"><tr style="background:#eee"><td style="border:1px solid #999;padding:4px 6px;width:18%">対象部分</td><td style="border:1px solid #999;padding:4px 6px;width:34%">確認項目</td><td style="border:1px solid #999;padding:4px 6px;width:10%;text-align:center">判定</td><td style="border:1px solid #999;padding:4px 6px">作業内容・コメント</td></tr>'+tr.replace(/<td>/g,'<td style="border:1px solid #999;padding:4px 6px">').replace(/<td style="text-align/g,'<td style="border:1px solid #999;padding:4px 6px;text-align')+'</table>'+lay+'<div style="margin-top:12px;font-weight:700">総合判定：'+esc(j.value)+'</div><div style="margin-bottom:12px">判定理由：'+esc(D0.reason)+'</div>'+ph+'<div>ご担当者：'+esc($("client").value)+'</div><img src="'+sig.toDataURL("image/png")+'" style="width:260px;height:110px;border:1px solid #999;object-fit:contain"></div>';
  var err=$("err");
@@ -317,6 +318,42 @@ function markMiss(){var d=D[ai];if(!d)return;IT.forEach(function(it,i){var q=kk(
 function liveRefresh(){if(!tried||ai<0)return;snap();renderDevs()}
 document.addEventListener("change",liveRefresh);document.addEventListener("input",liveRefresh);
 sig.addEventListener("pointerup",liveRefresh);$("sgOk").addEventListener("click",function(){setTimeout(liveRefresh,0)});$("clear").addEventListener("click",function(){setTimeout(liveRefresh,0)});
+var TPL={
+"正しい結び方である（2本もの）":["緩み止めが外れています→使用を中止してください","緩み止めが正しく入っていません→調整したので、このまま使用可能です"],
+"熱収縮チューブが付いている":["チューブを取付けましたので、このままご利用いただけます"],
+"ほつれがない、あるいは少ない":["ロープ20cmの間に{}箇所ほつれを確認しました","修理を推奨します","使用を中止してください"],
+"切れがない、あるいは少ない":["ロープに{}mmの切れを確認しました","修理を推奨します","使用を中止してください"],
+"やせがない、あるいは少ない":["ロープ直径{}mm以下でしたので、交換してください"],
+"摩耗していない":["金具部分直径{}mm以下でしたので、交換してください"],
+"錆、バリがない":["錆、バリの除去ができません、交換してください"],
+"環つき（安全環）":["安全環がついていません、使用を中止してください"],
+"生地に破れがない":["破れがひどいです、交換を推奨します"],
+"縫製にほつれがない":["ほつれがあるので交換を推奨します"],
+"ロープの取付部分に破れがない":["破れがひどいです、交換を推奨します"],
+"生地にひどい汚れがない":["汚れがひどいです、交換を推奨します"],
+"ウレタンにヘタリがない":["へたりを確認しました、交換を推奨します"],
+"木が折れていない":["木の破損を確認しました、使用を中止してください"],
+"木にひびが入っていない":["木の破損を確認しました、使用を中止してください"],
+"木が撓んでいない":["撓みが確認されたため、直ちに使用を中止してください"],
+"木の穴径が拡がっていない":["直径{}mm以上でしたので、交換してください"],
+"ゴムにひび割れがない":["部分的にひび割れが確認できましたので、交換してください"],
+"部分的にゴムが細くなって伸びきっていない":["部分的に細く伸びきっていましたので、交換してください"],
+"プラスチックにひびがない":["プラスチックに破損を確認しました、使用を中止してください"],
+"プラスチックが変形していない":["プラスチックに破損を確認しました、使用を中止してください"],
+"生地の色、ロープの種類などで判別する（世代区分）":["第Ⅲ世代以前のロープと確認しました、使用を中止してください","第Ⅳ世代のロープと確認しました、交換を推奨します","第Ⅴ世代のロープと確認しました、使用可能です（ただし、使用年数は10年です）"],
+"チューブスイングの形状":["部分的に歪みがある場合は、チューブが劣化している可能性があります、買換えを推奨します"],
+"空中シーソーナイロンベルト":["ベルト幅1/3以上ほつれていることを確認しました、使用を中止してください"],
+"遊び台・飛び石の足ゴム":["亀裂が入っています、交換してください"],
+"直接カラビナと接続していない":["金具に直接カラビナを使用せず、ロープをご使用ください"],
+"フックが磨耗していない":["摩耗を確認しました、施工業者にご相談ください"],
+"ナットが緩んでいない":["ナットの緩みを確認しました、施工業者にご相談ください"],
+"ロープの世代":["第Ⅲ世代以前のロープと確認しました、使用を中止してください","第Ⅳ世代のロープと確認しました、交換を推奨します","第Ⅴ世代（黒・緑）のロープと確認しました、使用可能です（ただし、使用年数は10年です）"]
+};
+function wkHtml(it,i){var L=TPL[it[1]];if(!L)return"";var h='<div class="wk'+(it[3]==="gen"?' always':'')+'"><div class="wkt">作業内容（実施・判断した内容にチェック）</div>';L.forEach(function(t,j){var p=t.split("{}"),n=p.length>1;h+='<div class="wl" data-wi="'+i+'" data-wj="'+j+'"><label><input type="checkbox"><span>'+esc(p[0])+'</span></label>'+(n?'<input type="number" class="nm" inputmode="decimal" aria-label="数値を入力"><span>'+esc(p[1])+'</span>':"")+'</div>'});return h+'</div>'}
+function readW(i){var o={},any=false;Array.prototype.forEach.call(document.querySelectorAll('.wl[data-wi="'+i+'"]'),function(r){if(r.querySelector('input[type=checkbox]').checked){var n=r.querySelector(".nm");o[r.getAttribute("data-wj")]=n?n.value:"";any=true}});return any?JSON.stringify(o):""}
+function writeW(i,str){var o={};try{o=JSON.parse(str||"{}")}catch(x){}Array.prototype.forEach.call(document.querySelectorAll('.wl[data-wi="'+i+'"]'),function(r){var j=r.getAttribute("data-wj"),has=Object.prototype.hasOwnProperty.call(o,j);r.querySelector('input[type=checkbox]').checked=has;var n=r.querySelector(".nm");if(n)n.value=has?o[j]:""})}
+function wLines(it,str){var o={};try{o=JSON.parse(str||"{}")}catch(x){}var L=TPL[it[1]]||[];return Object.keys(o).map(Number).sort(function(a,b){return a-b}).map(function(j){var t=L[j];if(!t)return"";return"・"+t.replace("{}",o[j]!==""?o[j]:"＿＿＿")}).filter(Boolean).join("\n")}
+$("items").addEventListener("input",function(e){var t=e.target;if(t.classList&&t.classList.contains("nm")){var cb=t.closest(".wl").querySelector('input[type=checkbox]');if(t.value!=="")cb.checked=true}});
 renderDevs();initSig();
 </script>
 </body>
