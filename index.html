@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>感覚統合器具メンテナンスチェックシート</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f3f5f2;--card:#fff;--ink:#1d2a26;--sub:#5d6b66;--line:#d5dcd7;--ok:#1f7a4d;--ng:#c2402a;--main:#1f5c7a;--mainink:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15191a;--card:#1f2527;--ink:#e8eeeb;--sub:#9aa8a2;--line:#33403b;--ok:#4fbf86;--ng:#ef7a63;--main:#5aa6c8;--mainink:#0f1a1f}}
+:root[data-theme="dark"]{--bg:#15191a;--card:#1f2527;--ink:#e8eeeb;--sub:#9aa8a2;--line:#33403b;--ok:#4fbf86;--ng:#ef7a63;--main:#5aa6c8;--mainink:#0f1a1f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Hiragino Sans","Yu Gothic UI","Noto Sans JP",sans-serif}
+main{max-width:640px;margin:0 auto;padding:16px 14px 90px}
+h1{font-size:19px;margin:6px 0 14px}
+h2{font-size:15px;margin:22px 0 8px;color:var(--main)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+label.f{display:block;font-size:13px;color:var(--sub);margin-bottom:8px}
+input[type=text],input[type=date],input[type=time],input[type=number],select,textarea{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tabs button{flex:1;padding:11px 6px;border:1px solid var(--main);background:transparent;color:var(--main);border-radius:8px;font:inherit;font-weight:700}
+.tabs button.on{background:var(--main);color:var(--mainink)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.item .t{font-weight:600}.item .c{font-size:13px;color:var(--sub);margin:2px 0 8px}
+.seg{display:flex;gap:6px}
+.seg label{flex:1}.seg input{position:absolute;opacity:0}
+.seg span{display:block;text-align:center;padding:10px 4px;border:1px solid var(--line);border-radius:8px;font-weight:700}
+.seg input:checked+span.g{background:var(--ok);color:#fff;border-color:var(--ok)}
+.seg input:checked+span.b{background:var(--ng);color:#fff;border-color:var(--ng)}
+.seg input:checked+span.n{background:var(--sub);color:#fff;border-color:var(--sub)}
+.seg input:focus-visible+span{outline:3px solid var(--main)}
+.item.bad{border-color:var(--ng)}
+.item textarea{margin-top:8px;display:none;min-height:60px}.item.bad textarea{display:block}
+.sign{border:2px dashed var(--line);border-radius:10px;background:#fff;touch-action:none;width:100%;height:170px;display:block}
+.btn{display:block;width:100%;padding:14px;border:0;border-radius:10px;background:var(--main);color:var(--mainink);font:inherit;font-weight:700;margin-top:10px}
+.btn.sub{background:transparent;color:var(--main);border:1px solid var(--main);padding:9px;margin-top:6px}
+.err{color:var(--ng);font-size:14px;min-height:20px;margin-top:8px}
+.prog{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding:6px 0;font-size:13px;color:var(--sub);z-index:2}
+.board{position:relative;width:100%;aspect-ratio:4/3;border:1px solid var(--line);border-radius:10px;background:#fff;touch-action:none;overflow:hidden;margin:10px 0}
+.lc{position:absolute;transform:translate(-50%,-50%);line-height:0;padding:3px;border-radius:6px;cursor:grab;user-select:none;touch-action:none}.lc img{display:block;width:100%;pointer-events:none;-webkit-user-drag:none}
+.lc.sel{outline:3px solid var(--main);outline-offset:2px}#devs{flex-wrap:wrap}#devs button{flex:1 1 30%}.thumbs{display:flex;flex-wrap:wrap;gap:10px}.th{position:relative;width:84px;height:84px}.th img{width:100%;height:100%;object-fit:cover;border-radius:8px;border:1px solid var(--line)}.th button{position:absolute;top:-8px;right:-8px;width:28px;height:28px;border-radius:50%;border:0;background:var(--ng);color:#fff;font-size:16px;line-height:1}
+.pal{display:flex;flex-wrap:wrap;gap:6px}
+.pal button{border:1px solid var(--line);background:#fff;color:#111;padding:6px 6px;border-radius:10px;font:inherit;font-size:11px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;width:78px}.pal button img{height:36px;width:auto;max-width:50px}
+.hide{display:none}
+</style>
+</head>
+<body>
+<main>
+<h1>感覚統合器具メンテナンスチェックシート</h1>
+<div class="tabs" id="tabs"></div>
+
+<h2>点検情報</h2>
+<div class="card">
+ <div class="row2"><label class="f">点検日<input type="date" id="date"></label><label class="f">検査員名<input type="text" id="inspector"></label></div>
+ <div class="row2"><label class="f">開始<input type="time" id="start"></label><label class="f">終了<input type="time" id="end"></label></div>
+ <div class="row2"><label class="f">施設名<input type="text" id="facility"></label><label class="f">部屋名<input type="text" id="room"></label></div>
+ <label class="f" id="prodWrap">製品名<input type="text" id="product"></label>
+ <div class="row2 hide" id="roomWrap"><label class="f">器具数<input type="number" id="gcount" inputmode="numeric"></label><label class="f">部屋数<input type="number" id="rcount" inputmode="numeric"></label></div>
+</div>
+
+<h2>点検する器具</h2><div class="tabs" id="devs"></div><div class="row2"><button class="btn sub" id="addS" type="button">＋ スイング他</button><button class="btn sub" id="addR" type="button">＋ 部屋（天井ロープ等）</button></div><div class="row2"><button class="btn sub" id="dup" type="button">この器具を複製</button><button class="btn sub" id="rm" type="button">この器具を削除</button></div><h2>点検項目</h2>
+<div class="prog" id="prog"></div>
+<div id="items"></div>
+
+<div id="layoutWrap" class="hide"><h2>感覚統合室レイアウト</h2><div class="card"><div style="font-size:13px;color:var(--sub);margin-bottom:8px">器具名をタップして追加し、ドラッグして好きな位置に動かします。</div><div class="pal" id="pal"></div><div class="board" id="board"></div><div class="row2"><button class="btn sub" id="delSel" type="button">選んだ器具を削除</button><button class="btn sub" id="delAll" type="button">すべて消す</button></div></div></div>
+
+<h2>写真（1〜5枚）</h2><div class="card"><input type="file" id="photos" accept="image/*" multiple><div id="phc" style="font-size:13px;color:var(--sub);margin:6px 0"></div><div class="thumbs" id="thumbs"></div></div>
+
+<h2>総合判定</h2>
+<div class="card">
+ <div class="seg" id="judge"></div>
+ <label class="f" style="margin-top:10px">判定理由<textarea id="reason" rows="3"></textarea></label>
+</div>
+
+<h2>ご担当者サイン</h2>
+<div class="card">
+ <label class="f">ご担当者名<input type="text" id="client"></label>
+ <canvas class="sign" id="sig" aria-label="手書きサイン欄"></canvas>
+ <button class="btn sub" id="clear" type="button">サインを消す</button>
+</div>
+<div class="err" id="err" role="alert"></div>
+<button class="btn" id="make" type="button">全器具のPDFを作成</button><div id="pdfs"></div>
+</main>
+<div id="stage" style="position:fixed;left:-10000px;top:0"></div>
+
+<script>
+var SHEETS={
+swing:{name:"スイング他",title:"感覚統合器具メンテナンスチェックシート（スイング他製造品）",items:[
+["ロープ部分","正しい結び方である（1本もの）","結びの先端が3～4cm出ているか確認"],
+["ロープ部分","正しい結び方である（2本もの）","ゆるみ止めがついているか確認"],
+["ロープ部分","緩みなく結ばれている","体重をかけて確認"],
+["ロープ部分","熱収縮チューブが付いている",""],
+["ロープ部分","ほつれがない、あるいは少ない","結び目の根元も確認"],
+["ロープ部分","切れがない、あるいは少ない","切れ目があれば使用中止（旧タイプの場合）"],
+["ロープ部分","やせがない、あるいは少ない","14mm以上か確認：標準は16mm（第Ⅲ世代以降）"],
+["金具部分","摩耗していない","直径が8mm以下の場合は使用中止：標準は10mm"],
+["金具部分","錆、バリがない","怪我・破損防止のため"],
+["金具部分","環つき","安全環がついている"],
+["生地部分","生地に破れがない","擦り切れ、ほつれなど"],
+["生地部分","縫製にほつれがない","本体裏面の縫製部分にほつれがないか"],
+["生地部分","ロープの取付部分に破れがない","ロープ取付部分周辺の生地の確認（金具含む）"],
+["生地部分","生地にひどい汚れがない",""],
+["生地部分","ウレタンにヘタリがない","芯材に当たっていないか"],
+["木製部分","木が折れていない","怪我・破損防止のため"],
+["木製部分","木にひびが入っていない","裏面 深さ1mm未満（使用可）・2～5mm（注意）・5mm以上（使用中止）"],
+["木製部分","木が撓んでいない","成人が乗って、撓みがないか確認"],
+["木製部分","木の穴径が拡がっていない","20mm以上の場合は使用中止（モンキースイングの場合）"],
+["バンジーゴム部分","ゴムにひび割れがない","スペースホッパーはカバーを取り外して確認"],
+["バンジーゴム部分","部分的にゴムが細くなって伸びきっていない","スペースホッパーは座って傾きがないか確認"],
+["プラスチック部分","プラスチックにひびがない","フレキサースイングⅡ、遊び台等"],
+["プラスチック部分","プラスチックが変形していない","フレキサースイングⅡ、遊び台等"],
+["自社旧製品との区別","ロープの世代","生地の色・ロープの種類で判別（モンキー・ハンモックは判別不要）","gen"],
+["特有の確認事項","チューブスイングの形状","真円になっているかどうか"],
+["特有の確認事項","空中シーソーナイロンベルト","ほつれがないかどうか"],
+["特有の確認事項","遊び台・飛び石の足ゴム","亀裂が入っていないかどうか"]]},
+room:{name:"部屋（天井ロープ等）",title:"感覚統合器具メンテナンスチェックシート（天井ロープ等）",items:[
+["ロープ部分（天井金具に結ばれているもの）","正しい結び方である（1本もの）","結びの先端が3～4cm出ているか確認"],
+["ロープ部分（天井金具に結ばれているもの）","緩みなく結ばれている","体重をかけて確認"],
+["ロープ部分（天井金具に結ばれているもの）","熱収縮チューブが付いている","チューブ色（緑・青・黒）"],
+["ロープ部分（天井金具に結ばれているもの）","ほつれがない、あるいは少ない","結び目の根元も確認"],
+["ロープ部分（天井金具に結ばれているもの）","切れがない、あるいは少ない","切れ目があれば使用中止（旧タイプの場合）"],
+["ロープ部分（天井金具に結ばれているもの）","やせがない、あるいは少ない","14mm以上か確認：標準は16mm（第Ⅲ世代以降）"],
+["ロープ部分（天井金具に結ばれているもの）","ロープの世代","生地の色・ロープの種類で判別","gen"],
+["ロープ部分（天井金具に結ばれているもの）","ロープの推奨使用年数","10年未満"],
+["天井金具","直接カラビナと接続していない",""],
+["天井金具","フックが磨耗していない",""],
+["天井金具","ナットが緩んでいない",""]]}
+};
+var GENS=["Ⅰ","Ⅱ","Ⅲ","Ⅳ","Ⅴ","自社外"];
+var cur="swing",$=function(i){return document.getElementById(i)};
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+
+function build(){
+  $("prodWrap").classList.toggle("hide",cur!=="swing");$("layoutWrap").classList.toggle("hide",cur!=="room");$("roomWrap").classList.toggle("hide",cur!=="room");
+ var h="",g="";
+ SHEETS[cur].items.forEach(function(it,i){
+  if(it[0]!==g){g=it[0];h+='<h2 style="margin-top:14px">'+esc(g)+'</h2>'}
+  h+='<div class="card item" id="it'+i+'"><div class="t">'+esc(it[1])+'</div>'+(it[2]?'<div class="c">'+esc(it[2])+'</div>':'');
+  if(it[3]==="gen"){h+='<select data-i="'+i+'" class="gen"><option value="">選択してください</option>'+GENS.map(function(x){return'<option>'+x+'</option>'}).join("")+'</select>'}
+  else{h+='<div class="seg"><label><input type="radio" name="r'+i+'" value="良"><span class="g">良</span></label><label><input type="radio" name="r'+i+'" value="不良"><span class="b">不良</span></label><label><input type="radio" name="r'+i+'" value="該当なし"><span class="n">該当なし</span></label></div><textarea placeholder="不良の内容・実施した作業を入力" data-c="'+i+'"></textarea>'}
+  h+='</div>'});
+ $("items").innerHTML=h;
+ $("items").onchange=function(e){var t=e.target;if(t.type==="radio"){var i=t.name.slice(1);$("it"+i).classList.toggle("bad",t.value==="不良")}prog()};
+ prog();
+}
+function prog(){var n=SHEETS[cur].items.length,d=0;SHEETS[cur].items.forEach(function(it,i){if(it[3]==="gen"?$("items").querySelector('.gen').value:document.querySelector('input[name="r'+i+'"]:checked'))d++});$("prog").textContent="【"+SHEETS[cur].name+"】入力済み "+d+" / "+n+" 項目"}
+
+$("judge").innerHTML=["使用可","注意して使用","使用中止"].map(function(v,i){return'<label><input type="radio" name="j" value="'+v+'"><span class="'+["g","n","b"][i]+'">'+v+'</span></label>'}).join("");
+
+var sig=$("sig"),ctx,drawn=false,down=false;
+function initSig(){var r=sig.getBoundingClientRect(),d=window.devicePixelRatio||1;sig.width=r.width*d;sig.height=r.height*d;ctx=sig.getContext("2d");ctx.scale(d,d);ctx.lineWidth=2.4;ctx.lineCap="round";ctx.lineJoin="round";ctx.strokeStyle="#111"}
+function pt(e){var r=sig.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]}
+sig.addEventListener("pointerdown",function(e){down=true;sig.setPointerCapture(e.pointerId);var p=pt(e);ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(p[0]+.1,p[1]+.1);ctx.stroke();drawn=true});
+sig.addEventListener("pointermove",function(e){if(!down)return;var p=pt(e);ctx.lineTo(p[0],p[1]);ctx.stroke()});
+["pointerup","pointercancel"].forEach(function(n){sig.addEventListener(n,function(){down=false})});
+$("clear").onclick=function(){ctx.clearRect(0,0,sig.width,sig.height);drawn=false};
+
+var D=[],ai=-1,PDFS=[];
+function mk(t){return{type:t,product:"",gc:"",rc:"",v:{},c:{},j:"",reason:"",LI:[],ph:[]}}
+function collect(d){var rows=[],miss=0;SHEETS[d.type].items.forEach(function(it,i){var v=d.v[i]||"";if(!v)miss++;rows.push([it[0],it[1],v,d.c[i]||""])});return{rows:rows,miss:miss}}
+function snap(){if(ai<0)return;var v={},c={},j=document.querySelector('input[name="j"]:checked');SHEETS[cur].items.forEach(function(it,i){if(it[3]==="gen")v[i]=$("items").querySelector(".gen").value;else{var r=document.querySelector('input[name="r'+i+'"]:checked');v[i]=r?r.value:"";c[i]=document.querySelector('[data-c="'+i+'"]').value}});D[ai]={type:cur,product:$("product").value,gc:$("gcount").value,rc:$("rcount").value,v:v,c:c,j:j?j.value:"",reason:$("reason").value,LI:LI,ph:D[ai].ph||[]}}
+function renderDevs(){$("devs").innerHTML=D.map(function(d,i){return'<button type="button" data-d="'+i+'" class="'+(i===ai?'on':'')+'">'+(i+1)+'. '+esc(d.product||SHEETS[d.type].name)+'</button>'}).join("")}
+function loadDev(i){ai=i;var d=D[i];cur=d.type;build();SHEETS[cur].items.forEach(function(it,k){if(it[3]==="gen")$("items").querySelector(".gen").value=d.v[k]||"";else{if(d.v[k]){var r=document.querySelector('input[name="r'+k+'"][value="'+d.v[k]+'"]');if(r){r.checked=true;if(d.v[k]==="不良")$("it"+k).classList.add("bad")}}document.querySelector('[data-c="'+k+'"]').value=d.c[k]||""}});$("product").value=d.product||"";$("gcount").value=d.gc||"";$("rcount").value=d.rc||"";$("reason").value=d.reason||"";var jr=document.querySelector('input[name="j"]:checked');if(jr)jr.checked=false;if(d.j){var q=document.querySelector('input[name="j"][value="'+d.j+'"]');if(q)q.checked=true}LI=d.LI;sel=-1;drawLayout();prog();renderDevs();renderPh()}
+function renderPh(){var p=D[ai].ph;$("thumbs").innerHTML=p.map(function(s,i){return'<div class="th"><img src="'+s+'" alt=""><button type="button" data-x="'+i+'" aria-label="写真を削除">×</button></div>'}).join("");$("phc").textContent=p.length+" / 5 枚"}
+function shrink(f){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var s=Math.min(1,1200/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext("2d").drawImage(im,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.8))};im.onerror=rej;im.src=r.result};r.onerror=rej;r.readAsDataURL(f)})}
+$("photos").onchange=async function(e){var fs=Array.prototype.slice.call(e.target.files),d=D[ai],err=$("err"),room=5-d.ph.length;err.textContent="";if(fs.length>room)err.textContent="写真は1器具につき5枚までです。先頭の"+room+"枚だけ追加しました。";for(var k=0;k<Math.min(fs.length,room);k++){try{d.ph.push(await shrink(fs[k]))}catch(x){err.textContent="読み込めない写真がありました。"}}e.target.value="";renderPh()};
+$("thumbs").onclick=function(e){var b=e.target.closest("button");if(!b)return;D[ai].ph.splice(+b.getAttribute("data-x"),1);renderPh()};
+function addDev(t){snap();D.push(mk(t));loadDev(D.length-1)}
+$("addS").onclick=function(){addDev("swing")};
+$("addR").onclick=function(){addDev("room")};
+$("dup").onclick=function(){snap();var c=JSON.parse(JSON.stringify(D[ai]));c.product="";c.ph=[];D.push(c);loadDev(D.length-1)};
+$("rm").onclick=function(){var b=$("rm");if(b.dataset.arm!=="1"){b.dataset.arm="1";b.textContent="もう一度押すと削除";setTimeout(function(){b.dataset.arm="";b.textContent="この器具を削除"},3000);return}b.dataset.arm="";b.textContent="この器具を削除";if(D.length<2){$("err").textContent="最後の1器具は削除できません。";return}D.splice(ai,1);loadDev(Math.min(ai,D.length-1))};
+$("devs").onclick=function(e){var b=e.target.closest("button");if(!b)return;snap();loadDev(+b.getAttribute("data-d"))};
+$("product").oninput=function(){snap();renderDevs()};
+var SHARE_NOTE="感覚統合器具メンテナンスチェックシートを送付します。";
+function mkFile(p){return new File([p.blob],p.name+".pdf",{type:"application/pdf"})}
+function dlFile(p){var a=document.createElement("a");a.href=URL.createObjectURL(p.blob);a.download=p.name+".pdf";document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},4000)}
+function showPdfs(){var h="<h2>PDFの送付・保存</h2>";if(PDFS.length>1)h+='<button class="btn" data-a="all" type="button">全PDFをまとめてメールなどで送る</button>';PDFS.forEach(function(p,i){h+='<div class="card"><div style="font-size:14px;margin-bottom:6px">'+esc(p.name)+'</div><button class="btn" data-s="'+i+'" type="button">メールなどで送る</button><button class="btn sub" data-d="'+i+'" type="button">端末に保存</button></div>'});$("pdfs").innerHTML=h}
+$("pdfs").onclick=async function(e){var b=e.target.closest("button");if(!b)return;var err=$("err");err.textContent="";
+ if(b.hasAttribute("data-d")){dlFile(PDFS[+b.getAttribute("data-d")]);return}
+ var ps=b.getAttribute("data-a")==="all"?PDFS:[PDFS[+b.getAttribute("data-s")]],fs=ps.map(mkFile);
+ try{if(navigator.canShare&&navigator.canShare({files:fs})){await navigator.share({files:fs,title:"点検チェックシート",text:SHARE_NOTE})}else{ps.forEach(dlFile);err.textContent="この端末では共有メニューが使えないため、PDFを保存しました。メールアプリを開いて添付してください。";location.href="mailto:?subject="+encodeURIComponent("点検チェックシート")+"&body="+encodeURIComponent(SHARE_NOTE+"（PDFを添付してください）")}}
+ catch(x){if(!x||x.name!=="AbortError")err.textContent="共有に失敗しました。「端末に保存」を使ってください。"}};
+$("make").onclick=async function(){var err=$("err");err.textContent="";snap();if(!$("inspector").value.trim()){err.textContent="検査員名を入力してください。";return}for(var k=0;k<D.length;k++){var c=collect(D[k]);if(c.miss){err.textContent=(k+1)+"番目の器具に未入力の項目が "+c.miss+" 件あります。";return}if(!D[k].j){err.textContent=(k+1)+"番目の器具の総合判定を選んでください。";return}if(!D[k].ph.length){err.textContent=(k+1)+"番目の器具の写真を1枚以上追加してください。";return}}if(!drawn){err.textContent="ご担当者のサインをお願いします。";return}var btn=$("make");btn.disabled=true;btn.textContent="作成中…";PDFS=[];try{for(var k=0;k<D.length;k++){var b=await genPdf(D[k]);PDFS.push({name:"点検"+(k+1)+"_"+(D[k].product||SHEETS[D[k].type].name).replace(/[^\w\u3040-\u30ff\u4e00-\u9fff]/g,"")+"_"+($("date").value||""),blob:b})}showPdfs()}catch(e){err.textContent="PDFの作成に失敗しました。もう一度お試しください。"}finally{btn.disabled=false;btn.textContent="全器具のPDFを作成"}};
+
+async function genPdf(D0){
+ var d=collect(D0),j={value:D0.j},cur=D0.type,S=SHEETS[cur],v=function(i){return esc($(i).value)};
+ var meta=[["点検日",v("date")],["時間",v("start")+" ～ "+v("end")],["施設名",v("facility")],["部屋名",v("room")],["検査員名",v("inspector")]];
+ meta.push(cur==="swing"?["製品名",esc(D0.product)]:["器具数／部屋数",esc(D0.gc)+" 器具／"+esc(D0.rc)+" 部屋"]);
+ var tr="";d.rows.forEach(function(r){tr+='<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td><td style="text-align:center;font-weight:700;color:'+(r[2]==="不良"?"#c2402a":"#111")+'">'+esc(r[2])+'</td><td>'+esc(r[3])+'</td></tr>'});
+ var lay=cur==="room"?layoutHtml(D0.LI):"";var ph=D0.ph.length?'<div style="margin-top:12px;font-weight:700">写真</div><div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;margin-top:4px">'+D0.ph.map(function(s){return'<img src="'+s+'" style="width:240px;height:auto;border:1px solid #999">'}).join("")+'</div>':"";var st=$("stage");
+ st.innerHTML='<div id="rep" style="width:794px;padding:36px;background:#fff;color:#111;font:13px/1.55 sans-serif"><div style="font-size:17px;font-weight:700;margin-bottom:10px">'+esc(S.title)+'</div><table style="width:100%;border-collapse:collapse;margin-bottom:10px">'+meta.map(function(m){return'<tr><td style="border:1px solid #999;padding:4px 8px;width:25%;background:#eee">'+m[0]+'</td><td style="border:1px solid #999;padding:4px 8px">'+m[1]+'</td></tr>'}).join("")+'</table><table style="width:100%;border-collapse:collapse"><tr style="background:#eee"><td style="border:1px solid #999;padding:4px 6px;width:18%">対象部分</td><td style="border:1px solid #999;padding:4px 6px;width:34%">確認項目</td><td style="border:1px solid #999;padding:4px 6px;width:10%;text-align:center">判定</td><td style="border:1px solid #999;padding:4px 6px">作業内容・コメント</td></tr>'+tr.replace(/<td>/g,'<td style="border:1px solid #999;padding:4px 6px">').replace(/<td style="text-align/g,'<td style="border:1px solid #999;padding:4px 6px;text-align')+'</table>'+lay+'<div style="margin-top:12px;font-weight:700">総合判定：'+esc(j.value)+'</div><div style="margin-bottom:12px">判定理由：'+esc(D0.reason)+'</div>'+ph+'<div>ご担当者：'+esc($("client").value)+'</div><img src="'+sig.toDataURL("image/png")+'" style="width:260px;height:110px;border:1px solid #999;object-fit:contain"></div>';
+ var err=$("err");
+ try{
+  var cv=await html2canvas($("rep"),{scale:2,backgroundColor:"#fff"});
+  var P=new window.jspdf.jsPDF({unit:"pt",format:"a4"}),W=595.28,H=841.89,ph=Math.floor(cv.width*H/W),y=0;
+  while(y<cv.height){var h=Math.min(ph,cv.height-y),c=document.createElement("canvas");c.width=cv.width;c.height=h;c.getContext("2d").drawImage(cv,0,y,cv.width,h,0,0,cv.width,h);if(y>0)P.addPage();P.addImage(c.toDataURL("image/jpeg",.92),"JPEG",0,0,W,h*W/cv.width);y+=ph}
+  return P.output("blob");
+ }finally{st.innerHTML=""}
+}
+
+var PNG="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGMAAABpCAMAAAAZfm3BAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAHyUExURf///39/fwAAAAkJCfX19RISEuzs7AgICPb29hsbG+Pj4xEREe7u7iQkJNra2hkZGeXl5S0tLdHR0SIiIt3d3TY2NsjIyCoqKtTU1D8/P7+/vzMzM8zMzEhISLW1tTs7O8PDw1FRUaysrERERLu7u1paWqOjo0xMTLKysmRkZJqamlVVVaqqqiAgIAICAgUFBQcHBwoKCg0NDQ8PDxQUFBcXFxoaGgwMDCEhIScnJykpKRYWFi4uLjExMTQ0ND4+PkFBQUNDQ0ZGRktLS05OTlBQUFNTU1hYWF1dXWBgYGJiYjw8PICAgM7OzqGhoZaWlvn5+ff39/T09PHx8e/v7+rq6ufn52lpaXd3d9jY2NXV1dPT09DQ0M3NzcvLy3Z2disrK8HBwb6+vry8vLm5uba2trS0tLGxsa+vr6enp6SkpKKiop+fn52dnTc3N2ZmZpmZmV9fX25ubpCQkCgoKKampoiIiJGRkW1tbYeHh319fR4eHnh4eIyMjMTExKCgoPv7+zIyMpycnMnJyYGBgQYGBiUlJTAwMFdXV1xcXGFhYWdnZ2xsbHJycj09PY2NjZKSkpiYmKioqK2trbOzs7i4uNnZ2d7e3uTk5FJSUmtra+Hh4YKCghAQELq6uuLi4nFxcaurqyMjI3Nzc8XFxQAAABehGXMAAACmdFJOU////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////wBGa60oAAAACXBIWXMAAA7EAAAOxAGVKw4bAAADM0lEQVRoQ+2YwY6tIAyGCVvZ6U52utMH4i1wxfPfUhAoeJNCMnOTG75k1Gna/oLHtueIyWQymfxbTDwnGgPybWUi4znRGJBvK5OpwWdq8JkafKYGn6nBpwgOfehnNcIlS6OvLRbBi/JHlsa3098Y0wiuXIrgdfPHH9bQ/sjSCLfDpQjef0HjOP2RpRFuh8tva9z+yNPA2+FSBF98jbBkLkWwffyRpRFuh8sigUUugFxWYNn3Hf6O/QCu4/JYuzvyBPo0nh0OSijAms2jtTarPvUJ3OfteZ4T/RJhyWysjRfC5UqXjYmrrIPWxQsm67vuQiMbM6XJdGqcMr60rrj5UzYVKfkBvRrCHeH8lBvkyP4jrx9QLplH3Or7wlOE7H8gm8ol81ALvlJ3vk8gGkuyiSyZx4394CQa0UhIJrpkHsbH6OoRoJHymkY0xA4flFoDjRVHMNFtZaLkKbY1/vOyyaaER1O1rUygVmxLvE7ctSr4oalZMg97qUZD2EbE2a9Hx2V3rYaQdfGTYgeTrrS5r6SWH61D1o9Egt/WPLrvpvNB2GqKpDUds0GZqbeVqeGwWfk2BU3Ktyffmow0++7c8zzQRaCfaFjEpi6rqqTsdQi1Pgp7FPSn0JqcdGYBLQuKoAvqcvUdU0r66vA1xLnUsxkE0zKP2fRS1asOjbJ8B3wwMYZstV+PhjiqTyEGxwKCxGxV5e/SqCs6BvtC8xKzbdSvSwPKB6noIfjMH9U320kqf59GVdFjcDambMSvU4NW9Dc4GXO20q9Xg1T0NzgZc7bSr1eDVPQU/BqLbEXt6dYop8QcHI1ltuzXryHWVNGL4GAk2ZLfgIYv34EiOBhJtuQ3oBGmeU8ZjEaa7Z0mRzRSrSDB3lhli35DGmoJUzoJVjC619mC35DGWytoMBjrbMFvTEMYLN9VsDuabOg3qBEqeh3caqDfqAZW9Dp4K8p8xPuNamD5aIJlO7yA37AGjI4fGjgnUsw1rGFwGvLf2XEYgmkIBhQJc4oj05DetlUq0tl60EbCMOTHIf9d3Q9Dj3zsbkw5DfnfDSSMQ9UkwKcJ/M40/jz4DK9hMplMJpP/CyH+ACeEbqJaBg1oAAAAAElFTkSuQmCC";
+var S1='stroke="#000" stroke-width="1.3" fill="#fff"',T1=' font-size="13" text-anchor="middle" font-family="sans-serif"';
+var IC=[
+["天井フック",7,"0 0 20 26",'<line x1="10" y1="0" x2="10" y2="11" stroke="#000" stroke-width="1.5"/><circle cx="10" cy="17" r="7" '+S1+'/>'],
+["天井格子",11,"png"],
+["ロープ",3.5,"0 0 8 24",'<line x1="4" y1="1" x2="4" y2="23" stroke="#000" stroke-width="3"/>'],
+["高さ調整金具",10,"0 0 44 34",'<polygon points="12,2 42,2 32,32 2,32" '+S1+'/><text x="22" y="22"'+T1+'>タ</text>'],
+["ローテーター",7,"0 0 30 44",'<ellipse cx="15" cy="22" rx="13.5" ry="20" '+S1+'/><text x="15" y="27"'+T1+'>ロ</text>'],
+["SIスプリング",9,"0 0 44 44",'<g transform="rotate(-55 22 22)"><polygon points="10,11 34,11 26,33 2,33" '+S1+'/></g><text x="22" y="27"'+T1+'>ス</text>'],
+["スイング1",9,"0 0 40 44",'<ellipse cx="20" cy="38" rx="17" ry="5" '+S1+'/><path d="M13 12v24a7 3 0 0 0 14 0V12" '+S1+'/><ellipse cx="20" cy="12" rx="7" ry="3" '+S1+'/>'],
+["スイング2",10,"0 0 44 44",'<path d="M12 40L20 4L30 34Z M20 4L38 38L30 34" '+S1+'/>'],
+["スイング3",10,"0 0 48 48",'<line x1="14" y1="2" x2="12" y2="24" stroke="#000" stroke-width="1.3"/><line x1="40" y1="4" x2="38" y2="26" stroke="#000" stroke-width="1.3"/><g transform="rotate(-50 28 36)"><rect x="10" y="30" width="32" height="12" rx="3" '+S1+'/><ellipse cx="42" cy="36" rx="3" ry="6" '+S1+'/></g>']
+];
+function icSrc(i){var d=IC[i];if(d[2]==="png")return PNG;return"data:image/svg+xml;charset=utf-8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="'+d[2]+'">'+d[3]+'</svg>')}
+var ROOM="data:image/svg+xml;charset=utf-8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="60 8 490 215" preserveAspectRatio="none"><g fill="none" stroke="#000" stroke-width="1.4"><path d="M68 14H440L541 60H177Z M68 14V168L175 214 M177 60H541L538 216H175Z"/><path stroke-dasharray="5 4" d="M68 168L436 170L538 216 M437 15L436 170 M153 15L265 60 M254 15L365 60 M357 15L463 60 M122 30H492 M150 45H515"/></g></svg>');
+var LI=[],sel=-1,drag=-1,board=$("board");
+function drawLayout(){board.style.backgroundImage='url("'+ROOM+'")';board.style.backgroundSize="100% 100%";board.innerHTML=LI.map(function(o,i){return'<div class="lc'+(i===sel?' sel':'')+'" data-i="'+i+'" style="left:'+o.x+'%;top:'+o.y+'%;width:'+IC[o.t][1]+'%"><img src="'+icSrc(o.t)+'" alt="'+IC[o.t][0]+'"></div>'}).join("")}
+$("pal").innerHTML=IC.map(function(t,i){return'<button type="button" data-t="'+i+'"><img src="'+icSrc(i)+'" alt=""><span>'+t[0]+'</span></button>'}).join("");
+$("pal").onclick=function(e){var bt=e.target.closest("button");if(!bt)return;var t=bt.getAttribute("data-t");var n=LI.length;LI.push({t:+t,x:20+(n*9)%60,y:20+(n*13)%60});sel=LI.length-1;drawLayout()};
+board.addEventListener("pointerdown",function(e){var c=e.target.closest(".lc");if(!c){sel=-1;drawLayout();return}drag=+c.getAttribute("data-i");sel=drag;board.setPointerCapture(e.pointerId);drawLayout()});
+board.addEventListener("pointermove",function(e){if(drag<0)return;var r=board.getBoundingClientRect(),o=LI[drag];o.x=Math.max(3,Math.min(97,(e.clientX-r.left)/r.width*100));o.y=Math.max(3,Math.min(97,(e.clientY-r.top)/r.height*100));var c=board.querySelector('[data-i="'+drag+'"]');c.style.left=o.x+"%";c.style.top=o.y+"%"});
+["pointerup","pointercancel"].forEach(function(n){board.addEventListener(n,function(){drag=-1})});
+$("delSel").onclick=function(){if(sel>=0){LI.splice(sel,1);sel=-1;drawLayout()}};
+$("delAll").onclick=function(){LI=[];sel=-1;drawLayout()};
+function layoutHtml(L){return'<div style="margin-top:14px;font-weight:700">感覚統合室レイアウト</div><div style="position:relative;width:500px;height:375px;border:1px solid #999;background:#fff;margin-top:4px"><img src="'+ROOM+'" style="position:absolute;left:0;top:0;width:100%;height:100%">'+L.map(function(o){return'<img src="'+icSrc(o.t)+'" style="position:absolute;left:'+o.x+'%;top:'+o.y+'%;width:'+IC[o.t][1]+'%;transform:translate(-50%,-50%)">'}).join("")+'</div>'}
+drawLayout();$("date").value=new Date().toISOString().slice(0,10);
+D.push(mk("swing"));loadDev(0);initSig();
+</script>
+</body>
+</html>
