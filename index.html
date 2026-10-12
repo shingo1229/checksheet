@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>感覚統合器具メンテナンスチェックシート</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -11,7 +11,7 @@
 --bg:#f3f5f2;--card:#fff;--ink:#1d2a26;--sub:#5d6b66;--line:#d5dcd7;--ok:#1f7a4d;--ng:#c2402a;--main:#1f5c7a;--mainink:#fff}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15191a;--card:#1f2527;--ink:#e8eeeb;--sub:#9aa8a2;--line:#33403b;--ok:#4fbf86;--ng:#ef7a63;--main:#5aa6c8;--mainink:#0f1a1f}}
 :root[data-theme="dark"]{--bg:#15191a;--card:#1f2527;--ink:#e8eeeb;--sub:#9aa8a2;--line:#33403b;--ok:#4fbf86;--ng:#ef7a63;--main:#5aa6c8;--mainink:#0f1a1f}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);touch-action:pan-x pan-y;-webkit-text-size-adjust:100%}
 *,*:before,*:after{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Hiragino Sans","Yu Gothic UI","Noto Sans JP",sans-serif}
 main{max-width:640px;margin:0 auto;padding:16px 14px 90px}
@@ -283,6 +283,8 @@ var UN=[],dragSnap=null;
 function pushU(){UN.push(JSON.stringify(LI));if(UN.length>30)UN.shift()}
 $("pal").onclick=function(e){var bt=e.target.closest("button");if(!bt)return;var t=bt.getAttribute("data-t");pushU();var n=LI.length;LI.push({t:+t,x:50+((n%5)-2)*5,y:50+((n%4)-1.5)*6});sel=LI.length-1;drawLayout()};
 $("dupB").onclick=function(){if(sel<0||!LI[sel])return;pushU();var o=JSON.parse(JSON.stringify(LI[sel]));o.x=Math.min(97,o.x+5);o.y=Math.min(97,o.y+5);LI.push(o);sel=LI.length-1;drawLayout()};
+["gesturestart","gesturechange","gestureend"].forEach(function(n){document.addEventListener(n,function(e){e.preventDefault()})});
+document.addEventListener("touchmove",function(e){if(e.touches&&e.touches.length>1&&e.cancelable)e.preventDefault()},{passive:false});
 $("lcard").addEventListener("contextmenu",function(e){e.preventDefault()});
 var nT=null,nI=null;
 function nudge(k){if(sel<0||!LI[sel])return;var o=LI[sel],st=k==="l"||k==="r"?(k==="l"?-1:1):0,sy=k==="u"||k==="d"?(k==="u"?-1:1):0;o.x=Math.max(3,Math.min(97,o.x+st));o.y=Math.max(3,Math.min(97,o.y+sy));var c=board.querySelector('[data-i="'+sel+'"]');if(c){c.style.left=o.x+"%";c.style.top=o.y+"%"}}
