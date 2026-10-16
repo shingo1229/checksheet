@@ -496,7 +496,7 @@ async function genPdf(D0){
   QTY.forEach(function(q,i){var x=(D0.qty||{})[i];if(x)put("AC"+(41+i),x,{bold:false})});
   var sg=$("sig"),sb=CK.W10.b,bw=sb[2]-sb[0]-8,bh=sb[3]-sb[1]-8,ar=sg.width/sg.height,iw=bw,ih=bw/ar;if(ih>bh){ih=bh;iw=bh*ar}g.drawImage(sg,(sb[0]+sb[2])/2-iw/2,(sb[1]+sb[3])/2-ih/2,iw,ih);
   var html=await layoutHtml(D0.LI),m=html.match(/src="(data:image\/png;base64,[^"]+)"/),li=m&&await loadImg(m[1]);
-  if(li){var a=CK.C55.b,z=CK.S66.b,x0=a[0],y0=a[1],bw2=z[2]-x0,bh2=z[3]-y0,w2=bw2,h2=bw2*3/4;if(h2>bh2){h2=bh2;w2=bh2*4/3}g.drawImage(li,x0+(bw2-w2)/2,y0+(bh2-h2)/2,w2,h2)}
+  if(li){var a=CK.C55.b,x0=a[0],y0=a[1]+4,hh=G.H-72-y0,ww=hh*4/3,mx=1052-x0;if(ww>mx){ww=mx;hh=ww*3/4}g.drawImage(li,x0+(mx-ww)/2,y0,ww,hh)}
  }
  var pgs=[cv.toDataURL("image/jpeg",.92)],ph=await Promise.all(D0.ph.map(fixCell));
  if(ph.length){var c2=document.createElement("canvas");c2.width=G.W;c2.height=G.H;var h=c2.getContext("2d"),u=G.W/794,n=ph.length,cols=n<=8?2:3,rws=n<=6?3:n<=8?4:4;
