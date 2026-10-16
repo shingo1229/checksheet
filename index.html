@@ -468,32 +468,38 @@ function wLines(it,str){var o={};try{o=JSON.parse(str||"{}")}catch(x){}var L=TPL
 $("items").addEventListener("input",function(e){var t=e.target;if(t.classList&&t.classList.contains("nm")){var cb=t.closest(".wl").querySelector('input[type=checkbox]');if(t.value!=="")cb.checked=true}});
 $("items").addEventListener("change",function(e){var t=e.target;if(t.classList&&t.classList.contains("cl")&&t.checked)t.closest(".wl").querySelector('input[type=checkbox]').checked=true});
 renderDevs();initSig();
-var SK="chk_draft_v1",draftReady=true,_dt=null,HID=["date","inspector","start","end","facility","client"];
+var SK="chk_draft_v1",draftReady=true,_dt=null,HID=["date","inspector","start","end","facility","client"],_saving=false,_again=false;
+function idb(){return new Promise(function(ok,ng){try{var r=indexedDB.open("chk_db",1);r.onupgradeneeded=function(){r.result.createObjectStore("kv")};r.onsuccess=function(){ok(r.result)};r.onerror=function(){ng(r.error)}}catch(x){ng(x)}})}
+function kvSet(k,v){return idb().then(function(db){return new Promise(function(ok,ng){var t=db.transaction("kv","readwrite");t.objectStore("kv").put(v,k);t.oncomplete=function(){db.close();ok()};t.onerror=t.onabort=function(){db.close();ng(t.error)}})})}
+function kvGet(k){return idb().then(function(db){return new Promise(function(ok,ng){var q=db.transaction("kv","readonly").objectStore("kv").get(k);q.onsuccess=function(){db.close();ok(q.result)};q.onerror=function(){db.close();ng(q.error)}})})}
+function kvDel(k){return idb().then(function(db){return new Promise(function(ok){var t=db.transaction("kv","readwrite");t.objectStore("kv").delete(k);t.oncomplete=t.onerror=t.onabort=function(){db.close();ok()}})})}
 function hasData(){return D.length>0||HID.some(function(i){return $(i).value&&i!=="date"})}
-function saveDraft(){if(!draftReady||!hasData())return;try{snap()}catch(x){}
+function stamp(msg){var t=new Date();$("asvT").textContent=msg.replace("@",t.getHours()+":"+("0"+t.getMinutes()).slice(-2))}
+function saveDraft(){if(!draftReady||!hasData())return;if(_saving){_again=true;return}try{snap()}catch(x){}
  var o={t:Date.now(),ai:ai,cur:cur,D:D,H:{},P:[],sig:""};HID.forEach(function(i){o.H[i]=$(i).value});
  o.P=Array.prototype.map.call(document.querySelectorAll('input[name="plan"]:checked,input[name="pack"]:checked'),function(x){return x.name+":"+x.value});
  try{if(drawn)o.sig=sig.toDataURL("image/png")}catch(x){}
- var np=false;try{localStorage.setItem(SK,JSON.stringify(o))}catch(x){o.D=o.D.map(function(d){return Object.assign({},d,{ph:[]})});np=true;try{localStorage.setItem(SK,JSON.stringify(o))}catch(y){$("asvT").textContent="自動保存できませんでした（端末の空き容量不足）";return}}
- var t=new Date();$("asvT").textContent="入力内容を自動保存中（"+t.getHours()+":"+("0"+t.getMinutes()).slice(-2)+"）"+(np?"※写真は容量の都合で保存対象外":"")}
+ _saving=true;var np=0;for(var q=0;q<D.length;q++)np+=(D[q].ph||[]).length;
+ kvSet(SK,JSON.stringify(o)).then(function(){stamp("入力内容を自動保存中（@）"+(np?"・写真"+np+"枚を含む":""))}).catch(function(){var ok=false;try{var o2=JSON.parse(JSON.stringify(o));o2.D.forEach(function(d){d.ph=[]});localStorage.setItem(SK,JSON.stringify(o2));ok=true}catch(y){}$("asvT").textContent=ok?"入力内容は保存しましたが、写真は端末の保存容量の都合で保存できません":"自動保存できませんでした（端末の空き容量不足、またはプライベートモード）"}).then(function(){_saving=false;if(_again){_again=false;schedSave()}})}
 function schedSave(){clearTimeout(_dt);_dt=setTimeout(saveDraft,700)}
 ["input","change","click"].forEach(function(n){document.addEventListener(n,schedSave,true)});
 document.addEventListener("visibilitychange",function(){if(document.hidden){clearTimeout(_dt);saveDraft()}});
 window.addEventListener("pagehide",function(){clearTimeout(_dt);saveDraft()});
-(function(){var a=document.createElement("div");a.style.cssText="margin:14px 0 24px;font-size:12px;color:var(--sub);text-align:center";a.innerHTML='<span id="asvT">入力すると自動で端末に一時保存されます</span><br><button type="button" id="asvX" style="margin-top:6px;background:none;border:1px solid var(--line,#bbb);border-radius:8px;padding:6px 12px;color:inherit;font:inherit">保存データを消して最初から</button>';$("pdfs").parentNode.appendChild(a);
- var ms=document.createElement("details");ms.style.cssText="margin-top:10px;text-align:left";ms.innerHTML='<summary style="cursor:pointer;text-align:center">Gmail送信の設定</summary><div style="display:grid;gap:6px;margin-top:8px"><input id="msU" placeholder="スクリプトURL（https://script.google.com/macros/s/…/exec）"><input id="msK" placeholder="合言葉" type="password"><input id="msT" placeholder="宛先メールアドレス" type="email"><div>設定すると、PDF作成後に「Gmailから直接送信」ボタンが表示されます。</div></div>';a.appendChild(ms);
- (function(){var m=MS();$("msU").value=m.u||"";$("msK").value=m.k||"";$("msT").value=m.to||"";["msU","msK","msT"].forEach(function(i){$(i).addEventListener("input",function(){try{localStorage.setItem("chk_mail",JSON.stringify({u:$("msU").value.trim(),k:$("msK").value,to:$("msT").value.trim()}))}catch(x){}})})})();
- $("asvX").onclick=function(){if(confirm("一時保存した入力内容を消して、最初から始めます。よろしいですか？")){draftReady=false;try{localStorage.removeItem(SK)}catch(x){}location.reload()}};
- var raw=null;try{raw=localStorage.getItem(SK)}catch(x){}var o=null;try{o=raw&&JSON.parse(raw)}catch(x){}
- if(!o||!o.D)return;draftReady=false;
- var b=document.createElement("div");b.style.cssText="position:fixed;left:0;right:0;top:0;z-index:99;background:#fff7e0;color:#222;border-bottom:2px solid #e0a800;padding:12px 14px;font-size:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap";
- var t=new Date(o.t);b.innerHTML='<div style="flex:1 1 200px">前回の入力内容が残っています（'+(t.getMonth()+1)+'/'+t.getDate()+' '+t.getHours()+':'+("0"+t.getMinutes()).slice(-2)+'保存）。復元しますか？</div><button type="button" id="rsY" class="btn" style="flex:none;width:auto;padding:8px 14px">復元する</button><button type="button" id="rsN" class="btn sub" style="flex:none;width:auto;padding:8px 14px">破棄</button>';document.body.appendChild(b);
- $("rsN").onclick=function(){try{localStorage.removeItem(SK)}catch(x){}draftReady=true;b.remove()};
- $("rsY").onclick=function(){D=o.D;HID.forEach(function(i){if(o.H&&o.H[i]!=null)$(i).value=o.H[i]});
-  Array.prototype.forEach.call(document.querySelectorAll('input[name="plan"],input[name="pack"]'),function(x){x.checked=(o.P||[]).indexOf(x.name+":"+x.value)>=0});
-  if(o.ai>=0&&D[o.ai])loadDev(o.ai);else{ai=-1;renderDevs()}
-  if(o.sig){var im=new Image();im.onload=function(){ctx.clearRect(0,0,800,400);ctx.drawImage(im,0,0,800,400);drawn=true;$("sigopen").textContent=""};im.src=o.sig}
-  draftReady=true;b.remove();prog();saveDraft()}})();
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(x){}
+(function(){var a=document.createElement("div");a.style.cssText="margin:14px 0 24px;font-size:12px;color:var(--sub);text-align:center";a.innerHTML='<span id="asvT">入力すると自動で端末に一時保存されます（写真も保存されます）</span><br><button type="button" id="asvX" style="margin-top:6px;background:none;border:1px solid var(--line,#bbb);border-radius:8px;padding:6px 12px;color:inherit;font:inherit">保存データを消して最初から</button>';$("pdfs").parentNode.appendChild(a);
+ $("asvX").onclick=function(){if(confirm("一時保存した入力内容（写真を含む）を消して、最初から始めます。よろしいですか？")){draftReady=false;try{localStorage.removeItem(SK)}catch(x){}kvDel(SK).then(function(){location.reload()})}};
+ function offer(o){if(!o||!o.D)return;draftReady=false;
+  var b=document.createElement("div");b.style.cssText="position:fixed;left:0;right:0;top:0;z-index:99;background:#fff7e0;color:#222;border-bottom:2px solid #e0a800;padding:12px 14px;font-size:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap";
+  var t=new Date(o.t),np=0;o.D.forEach(function(d){np+=(d.ph||[]).length});
+  b.innerHTML='<div style="flex:1 1 200px">前回の入力内容が残っています（'+(t.getMonth()+1)+'/'+t.getDate()+' '+t.getHours()+':'+("0"+t.getMinutes()).slice(-2)+'保存・器具／部屋 '+o.D.length+'件'+(np?'・写真'+np+'枚':'')+'）。復元しますか？</div><button type="button" id="rsY" class="btn" style="flex:none;width:auto;padding:8px 14px">復元する</button><button type="button" id="rsN" class="btn sub" style="flex:none;width:auto;padding:8px 14px">破棄</button>';document.body.appendChild(b);
+  $("rsN").onclick=function(){try{localStorage.removeItem(SK)}catch(x){}kvDel(SK);draftReady=true;b.remove()};
+  $("rsY").onclick=function(){D=o.D;HID.forEach(function(i){if(o.H&&o.H[i]!=null)$(i).value=o.H[i]});
+   Array.prototype.forEach.call(document.querySelectorAll('input[name="plan"],input[name="pack"]'),function(x){x.checked=(o.P||[]).indexOf(x.name+":"+x.value)>=0});
+   if(o.ai>=0&&D[o.ai])loadDev(o.ai);else{ai=-1;renderDevs()}
+   if(o.sig){var im=new Image();im.onload=function(){ctx.clearRect(0,0,800,400);ctx.drawImage(im,0,0,800,400);drawn=true;$("sigopen").textContent=""};im.src=o.sig}
+   draftReady=true;b.remove();prog();saveDraft()}}
+ kvGet(SK).then(function(raw){var o=null;try{o=raw&&JSON.parse(raw)}catch(x){}if(o){offer(o);return}var l=null;try{l=JSON.parse(localStorage.getItem(SK)||"null")}catch(x){}offer(l)}).catch(function(){var l=null;try{l=JSON.parse(localStorage.getItem(SK)||"null")}catch(x){}offer(l)})})();
+
 </script>
 <script>
 document.addEventListener('change',function(e){var x=e.target;if(x&&x.type==='checkbox'&&(x.name==='plan'||x.name==='pack')&&x.checked)document.querySelectorAll('input[name="plan"],input[name="pack"]').forEach(function(o){if(o!==x)o.checked=false})});
