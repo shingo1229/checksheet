@@ -544,6 +544,9 @@ async function genPdf(D0){
   if(li){var a=CK.C55.b,x0=a[0],y0=a[1]+4,hh=CK.S66.b[3]-y0-6,ww=hh*2,mx=1190-x0;if(ww>mx){ww=mx;hh=ww/2}g.drawImage(li,x0+(mx-ww)/2,y0,ww,hh)}
  }
  var pgs=[cv.toDataURL("image/jpeg",.92)],ph=await Promise.all(D0.ph.map(fixCell));
+ if(!room&&ITEMS(D0.type,D0.product,D0.rope||"1").some(function(it){return it[3]==="gen"})){var c3=document.createElement("canvas");c3.width=G.W;c3.height=G.H;var r3=c3.getContext("2d"),u3=G.W/794;r3.fillStyle="#fff";r3.fillRect(0,0,G.W,G.H);r3.fillStyle="#111";r3.textBaseline="alphabetic";r3.textAlign="left";r3.font=18*u3+"px "+FF;r3.fillText("別紙　ロープのマテリアル",40*u3,62*u3);r3.fillRect(40*u3,70*u3,714*u3,2*u3);r3.font=13*u3+"px "+FF;r3.fillText([fac,D0.room||"",D0.product||"","点検日 "+($("date").value||"")].filter(Boolean).join("　／　"),40*u3,94*u3);
+  var ri=await loadImg(ROPEIMG);if(ri){var rw=714,rh=rw*ri.height/ri.width;r3.imageSmoothingQuality="high";r3.drawImage(ri,40*u3,120*u3,rw*u3,rh*u3);r3.strokeStyle="#999";r3.lineWidth=u3;r3.strokeRect(40*u3,120*u3,rw*u3,rh*u3);r3.font=12*u3+"px "+FF;r3.fillStyle="#111";r3.fillText("※ロープの世代・材質のご確認にお使いください。",40*u3,(120+rh+20)*u3)}
+  pgs.push(c3.toDataURL("image/jpeg",.92))}
  var nm0=pgs.length;
  if(ph.length){var c2=document.createElement("canvas");c2.width=G.W;c2.height=G.H;var h=c2.getContext("2d"),u=G.W/794,n=ph.length,cols=n<=8?2:3,rws=n<=6?3:n<=8?4:4;
   if(n>8)cols=3;h.fillStyle="#fff";h.fillRect(0,0,G.W,G.H);h.fillStyle="#111";h.textBaseline="alphabetic";h.textAlign="left";
