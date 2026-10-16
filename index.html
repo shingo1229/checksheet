@@ -449,6 +449,30 @@ function wLines(it,str){var o={};try{o=JSON.parse(str||"{}")}catch(x){}var L=TPL
 $("items").addEventListener("input",function(e){var t=e.target;if(t.classList&&t.classList.contains("nm")){var cb=t.closest(".wl").querySelector('input[type=checkbox]');if(t.value!=="")cb.checked=true}});
 $("items").addEventListener("change",function(e){var t=e.target;if(t.classList&&t.classList.contains("cl")&&t.checked)t.closest(".wl").querySelector('input[type=checkbox]').checked=true});
 renderDevs();initSig();
+var SK="chk_draft_v1",draftReady=true,_dt=null,HID=["date","inspector","start","end","facility","client"];
+function hasData(){return D.length>0||HID.some(function(i){return $(i).value&&i!=="date"})}
+function saveDraft(){if(!draftReady||!hasData())return;try{snap()}catch(x){}
+ var o={t:Date.now(),ai:ai,cur:cur,D:D,H:{},P:[],sig:""};HID.forEach(function(i){o.H[i]=$(i).value});
+ o.P=Array.prototype.map.call(document.querySelectorAll('input[name="plan"]:checked,input[name="pack"]:checked'),function(x){return x.name+":"+x.value});
+ try{if(drawn)o.sig=sig.toDataURL("image/png")}catch(x){}
+ var np=false;try{localStorage.setItem(SK,JSON.stringify(o))}catch(x){o.D=o.D.map(function(d){return Object.assign({},d,{ph:[]})});np=true;try{localStorage.setItem(SK,JSON.stringify(o))}catch(y){$("asvT").textContent="自動保存できませんでした（端末の空き容量不足）";return}}
+ var t=new Date();$("asvT").textContent="入力内容を自動保存中（"+t.getHours()+":"+("0"+t.getMinutes()).slice(-2)+"）"+(np?"※写真は容量の都合で保存対象外":"")}
+function schedSave(){clearTimeout(_dt);_dt=setTimeout(saveDraft,700)}
+["input","change","click"].forEach(function(n){document.addEventListener(n,schedSave,true)});
+document.addEventListener("visibilitychange",function(){if(document.hidden){clearTimeout(_dt);saveDraft()}});
+window.addEventListener("pagehide",function(){clearTimeout(_dt);saveDraft()});
+(function(){var a=document.createElement("div");a.style.cssText="margin:14px 0 24px;font-size:12px;color:var(--sub);text-align:center";a.innerHTML='<span id="asvT">入力すると自動で端末に一時保存されます</span><br><button type="button" id="asvX" style="margin-top:6px;background:none;border:1px solid var(--line,#bbb);border-radius:8px;padding:6px 12px;color:inherit;font:inherit">保存データを消して最初から</button>';$("pdfs").parentNode.appendChild(a);
+ $("asvX").onclick=function(){if(confirm("一時保存した入力内容を消して、最初から始めます。よろしいですか？")){draftReady=false;try{localStorage.removeItem(SK)}catch(x){}location.reload()}};
+ var raw=null;try{raw=localStorage.getItem(SK)}catch(x){}var o=null;try{o=raw&&JSON.parse(raw)}catch(x){}
+ if(!o||!o.D)return;draftReady=false;
+ var b=document.createElement("div");b.style.cssText="position:fixed;left:0;right:0;top:0;z-index:99;background:#fff7e0;color:#222;border-bottom:2px solid #e0a800;padding:12px 14px;font-size:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap";
+ var t=new Date(o.t);b.innerHTML='<div style="flex:1 1 200px">前回の入力内容が残っています（'+(t.getMonth()+1)+'/'+t.getDate()+' '+t.getHours()+':'+("0"+t.getMinutes()).slice(-2)+'保存）。復元しますか？</div><button type="button" id="rsY" class="btn" style="flex:none;width:auto;padding:8px 14px">復元する</button><button type="button" id="rsN" class="btn sub" style="flex:none;width:auto;padding:8px 14px">破棄</button>';document.body.appendChild(b);
+ $("rsN").onclick=function(){try{localStorage.removeItem(SK)}catch(x){}draftReady=true;b.remove()};
+ $("rsY").onclick=function(){D=o.D;HID.forEach(function(i){if(o.H&&o.H[i]!=null)$(i).value=o.H[i]});
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="plan"],input[name="pack"]'),function(x){x.checked=(o.P||[]).indexOf(x.name+":"+x.value)>=0});
+  if(o.ai>=0&&D[o.ai])loadDev(o.ai);else{ai=-1;renderDevs()}
+  if(o.sig){var im=new Image();im.onload=function(){var r=sig.getBoundingClientRect();ctx.clearRect(0,0,r.width,r.height);ctx.drawImage(im,0,0,r.width,r.height);drawn=true;$("sigopen").textContent=""};im.src=o.sig}
+  draftReady=true;b.remove();prog();saveDraft()}})();
 </script>
 <script>
 document.addEventListener('change',function(e){var x=e.target;if(x&&x.type==='checkbox'&&(x.name==='plan'||x.name==='pack')&&x.checked)document.querySelectorAll('input[name="plan"],input[name="pack"]').forEach(function(o){if(o!==x)o.checked=false})});
