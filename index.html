@@ -59,6 +59,11 @@ input[type=date],input[type=time]{min-width:0;max-width:100%;-webkit-appearance:
 .wk{display:none;margin-top:8px;padding:8px 10px;border:1px dashed var(--line);border-radius:8px}.item.bad .wk,.wk.always{display:block}.wkt{font-size:13px;color:var(--sub);margin-bottom:4px}.wl{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;padding:5px 0}.wl label{display:flex;align-items:center;gap:8px}.wl input[type=checkbox]{width:22px;height:22px;flex:none}.cg{display:inline-flex;gap:10px}.cg label{display:flex;align-items:center;gap:4px}.cg input{width:22px;height:22px}.wl input.nm{width:88px;padding:6px 8px;text-align:right}
 #lcard .board{touch-action:none}.card.fs{grid-template-columns:minmax(0,1fr) 250px;grid-template-rows:auto minmax(0,1fr) auto auto auto auto}.card.fs #bstage{grid-row:1/7}.card.fs #phint{display:none}.card.fs .pdr{grid-row:3;margin:0}.card.fs .pdr .row2+.row2{margin-top:4px!important}.card.fs .rA{grid-row:4}.card.fs .rB{grid-row:5}.card.fs .nudge{grid-row:6}.card.fs .btn{white-space:nowrap;font-size:12.5px}.card.fs .pdr .btn{font-size:11px;padding:6px 1px}
 .card.fs{row-gap:4px}.card.fs .pal{gap:4px}.card.fs .pal button{flex-direction:row;justify-content:flex-start;gap:6px;height:31px;padding:3px 6px;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden}.card.fs .pal button img{height:22px;max-width:28px;flex:none}.card.fs .pal button:active{background:var(--main);color:var(--mainink)}
+#sgo,#sgo *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+#sgo{touch-action:none;overscroll-behavior:none}
+#sgo button{touch-action:manipulation}
+#sig2{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none}
+html.sglock,html.sglock body{overflow:hidden!important;overscroll-behavior:none;height:100%}
 </style>
 </head>
 <body>
@@ -359,14 +364,17 @@ function initSig2(){fitSig2();var d=window.devicePixelRatio||1;sg2.width=sg2.cli
 var sgRot=false;
 function sgLayout(){var o=$("sgo"),W=window.innerWidth,H=window.innerHeight;sgRot=H>W;if(sgRot){o.style.inset="auto";o.style.left="0";o.style.top="0";o.style.width=H+"px";o.style.height=W+"px";o.style.transformOrigin="0 0";o.style.transform="translate("+W+"px,0) rotate(90deg)"}else{o.style.inset="0";o.style.width="";o.style.height="";o.style.transform=""}}
 function pt2(e){var r=sg2.getBoundingClientRect(),cw=sg2.clientWidth,ch=sg2.clientHeight;return sgRot?[(e.clientY-r.top)*cw/r.height,(r.right-e.clientX)*ch/r.width]:[(e.clientX-r.left)*cw/r.width,(e.clientY-r.top)*ch/r.height]}
-sg2.addEventListener("pointerdown",function(e){dn2=true;sg2.setPointerCapture(e.pointerId);var p=pt2(e);c2.beginPath();c2.moveTo(p[0],p[1]);c2.lineTo(p[0]+.1,p[1]+.1);c2.stroke();d2=true});
-sg2.addEventListener("pointermove",function(e){if(!dn2)return;var p=pt2(e);c2.lineTo(p[0],p[1]);c2.stroke()});
+var lp2=null;
+sg2.addEventListener("pointerdown",function(e){e.preventDefault();dn2=true;try{sg2.setPointerCapture(e.pointerId)}catch(x){}var p=pt2(e);c2.beginPath();c2.moveTo(p[0],p[1]);c2.lineTo(p[0]+.1,p[1]+.1);c2.stroke();lp2=p;d2=true});
+sg2.addEventListener("pointermove",function(e){if(!dn2)return;e.preventDefault();var ev=e.getCoalescedEvents?e.getCoalescedEvents():[];if(!ev.length)ev=[e];ev.forEach(function(q){var p=pt2(q),m=[(lp2[0]+p[0])/2,(lp2[1]+p[1])/2];c2.beginPath();c2.moveTo(lp2[0],lp2[1]);c2.quadraticCurveTo(lp2[0],lp2[1],m[0],m[1]);c2.lineTo(p[0],p[1]);c2.stroke();lp2=p})});
+(function(){var o=$("sgo");function stop(e){e.preventDefault()}["touchmove","touchstart","contextmenu","selectstart","dragstart","gesturestart","gesturechange","gestureend","dblclick"].forEach(function(n){o.addEventListener(n,function(e){if(n==="touchstart"&&e.target.closest&&e.target.closest("button"))return;stop(e)},{passive:false})})})();
+function sgLock(on){document.documentElement.classList.toggle("sglock",on);try{var s=window.getSelection&&window.getSelection();if(s&&s.removeAllRanges)s.removeAllRanges()}catch(x){}}
 ["pointerup","pointercancel"].forEach(function(n){sg2.addEventListener(n,function(){dn2=false})});
-$("sigopen").onclick=function(){$("sgo").style.display="flex";sgLayout();fsOn();setTimeout(function(){sgLayout();initSig2()},120)};
+$("sigopen").onclick=function(){sgLock(true);$("sgo").style.display="flex";sgLayout();fsOn();setTimeout(function(){sgLayout();initSig2()},120)};
 window.addEventListener("resize",sgResize);window.addEventListener("orientationchange",sgResize);document.addEventListener("fullscreenchange",sgResize);if(window.visualViewport)window.visualViewport.addEventListener("resize",sgResize);
 $("sgClear").onclick=initSig2;
-$("sgCancel").onclick=function(){$("sgo").style.display="none";fsOff()};
-$("sgOk").onclick=function(){if(d2){var r=sig.getBoundingClientRect(),s=Math.min(r.width/sg2.width,r.height/sg2.height),dw=sg2.width*s,dh=sg2.height*s;ctx.clearRect(0,0,r.width,r.height);ctx.drawImage(sg2,(r.width-dw)/2,(r.height-dh)/2,dw,dh);drawn=true;$("sigopen").textContent=""}$("sgo").style.display="none";fsOff()};
+$("sgCancel").onclick=function(){$("sgo").style.display="none";sgLock(false);fsOff()};
+$("sgOk").onclick=function(){if(d2){var r=sig.getBoundingClientRect(),s=Math.min(r.width/sg2.width,r.height/sg2.height),dw=sg2.width*s,dh=sg2.height*s;ctx.clearRect(0,0,r.width,r.height);ctx.drawImage(sg2,(r.width-dw)/2,(r.height-dh)/2,dw,dh);drawn=true;$("sigopen").textContent=""}$("sgo").style.display="none";sgLock(false);fsOff()};
 function fitBoard(){var st=$("bstage"),bd=$("board");if(!$("lcard").classList.contains("fs")){bd.style.width="";bd.style.height="";return}var w=st.clientWidth,h=st.clientHeight;if(w<20||h<20)return;var bw=Math.min(w,h/BAR);bd.style.width=Math.floor(bw)+"px";bd.style.height=Math.floor(bw*BAR)+"px"}
 window.addEventListener("resize",function(){setTimeout(fsRefit,60)});window.addEventListener("orientationchange",function(){setTimeout(fsRefit,200)});document.addEventListener("fullscreenchange",function(){setTimeout(fsRefit,100)});
 function layOpen(o){var c=$("lcard");if(!o&&c.classList.contains("fs"))$("lfs").click();c.style.display=o?"":"none";$("layH").setAttribute("aria-expanded",o?"true":"false");$("layArr").textContent=o?"▲ 閉じる":"▼ タップして開く"}
