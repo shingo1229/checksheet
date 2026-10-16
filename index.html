@@ -495,14 +495,33 @@ async function genPdf(D0){
   for(;;){g.font=(bold?"":"")+sz+"px "+FF;ln=wrapT(t,w);if(ln.length*sz*1.25<=hh||sz<=mn)break;sz-=.5}
   var lh=sz*1.25,y=(b[1]+b[3])/2-(ln.length-1)*lh/2,left=o.h==="left";g.fillStyle=o.color||"#000";g.textAlign=left?"left":"center";
   ln.forEach(function(s,i){g.fillText(s,left?b[0]+pad:(b[0]+b[2])/2,y+i*lh)})}
- function ell(cx,cy,rx,ry){g.beginPath();g.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);g.lineWidth=3;g.strokeStyle="#000";g.stroke()}
+ function ell(cx,cy,rx,ry,lw){g.beginPath();g.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);g.lineWidth=lw||3;g.strokeStyle="#000";g.stroke()}
  function wipe(ref){var b=CK[ref].b;g.fillStyle="#fff";g.fillRect(b[0]+3,b[1]+3,b[2]-b[0]-6,b[3]-b[1]-6)}
  var dt=new Date(($("date").value||"2000-01-01")+"T00:00:00"),WD="日月火水木金土"[dt.getDay()],st=($("start").value||":").split(":"),en=($("end").value||":").split(":"),nD=D.filter(function(x){return x.type!=="room"}).length,nR=D.length-nD,fac=$("facility").value||"",ins=$("inspector").value||"";
  var F=room?{E4:dt.getFullYear(),I4:dt.getMonth()+1,L4:dt.getDate(),P4:WD,U4:st[0],W4:st[1],AA4:en[0],AC4:en[1],E5:fac,U5:D0.room||"",V9:nD,AB9:nR,AC10:ins}:{D4:dt.getFullYear(),G4:dt.getMonth()+1,J4:dt.getDate(),N4:WD,S4:st[0],U4:st[1],Y4:en[0],AA4:en[1],D5:fac,T5:D0.room||"",D7:D0.product||"",D9:ins};
+ if(room){CK.V9.b=[1066,310,1234,344];CK.AB9.b=[1359,310,1557,344]}
  Object.keys(F).forEach(function(k){put(k,F[k])});
+ if(room){(function(){var X0=1210,X1=1578,XM=1359,Y0=1791,Y1=2263,N=6,hh=(Y1-Y0)/N,cx=(XM+X1)/2;g.fillStyle="#fff";g.fillRect(X0-3,Y0-3,X1-X0+6,Y1-Y0+8);g.strokeStyle="#000";g.fillStyle="#000";g.lineWidth=2;g.lineCap="butt";g.strokeRect(X0,Y0,X1-X0,Y1-Y0);
+  for(var i=1;i<N;i++){g.beginPath();g.moveTo(X0,Y0+i*hh);g.lineTo(X1,Y0+i*hh);g.stroke()}g.beginPath();g.moveTo(XM,Y0);g.lineTo(XM,Y1);g.stroke();
+  var LB=["天井フック","天井格子","ロープ","高さ調整金具","ローテーター","SIスプリング"];g.font="21px "+FF;g.textAlign="center";g.textBaseline="middle";LB.forEach(function(t,i){g.fillText(t,(X0+XM)/2,Y0+(i+.5)*hh)});
+  function cy(i){return Y0+(i+.5)*hh}
+  g.lineWidth=2;
+  // 天井フック
+  g.beginPath();g.moveTo(cx,cy(0)-26);g.lineTo(cx,cy(0)-8);g.stroke();g.beginPath();g.arc(cx,cy(0)+3,11,0,Math.PI*2);g.stroke();
+  // 天井格子
+  (function(){var y=cy(1),x=cx-28;for(var k=0;k<4;k++){g.beginPath();g.moveTo(x+k*6,y-18+k*12);g.lineTo(x+k*6+46,y-18+k*12);g.stroke()}for(var k=0;k<5;k++){g.beginPath();g.moveTo(x+k*11.5,y-18);g.lineTo(x+k*11.5+18,y+18);g.stroke()}})();
+  // ロープ
+  g.lineWidth=6;g.beginPath();g.moveTo(cx,cy(2)-28);g.lineTo(cx,cy(2)+28);g.stroke();g.lineWidth=2;
+  // 高さ調整金具
+  (function(){var y=cy(3);g.beginPath();g.moveTo(cx-24,y+20);g.lineTo(cx-14,y-20);g.lineTo(cx+26,y-20);g.lineTo(cx+16,y+20);g.closePath();g.stroke();g.font="20px "+FF;g.fillText("タ",cx,y)})();
+  // ローテーター
+  (function(){var y=cy(4);g.beginPath();g.ellipse(cx,y,24,27,0,0,Math.PI*2);g.stroke();g.font="20px "+FF;g.fillText("ロ",cx,y)})();
+  // SIスプリング
+  (function(){var y=cy(5);g.beginPath();g.moveTo(cx,y-30);g.lineTo(cx+28,y);g.lineTo(cx,y+30);g.lineTo(cx-28,y);g.closePath();g.stroke();g.font="20px "+FF;g.fillText("ス",cx,y)})();
+  g.textBaseline="middle"})()}
  put(room?"G11":"J9",D0.reason||"",{bold:false});
  // judge
- var jw=G.judge[D0.j];if(jw){var jb=CK[G.jref].b,jh=jw[3]-jw[1],jwid=jw[2]-jw[0];ell((jw[0]+jw[2])/2,(jw[1]+jw[3])/2,jwid/2+jh*.45,Math.min(jh*.75,(jb[3]-jb[1])/2-3))}
+ var jw=G.judge[D0.j];if(jw){var jb=CK[G.jref].b,jh=jw[3]-jw[1],jwid=jw[2]-jw[0];ell((jw[0]+jw[2])/2,(jw[1]+jw[3])/2,jwid/2+jh*1.35,jh*.5+7,2.4)}
 
  function circC(b){var cx=(b[0]+b[2])/2,cy=(b[1]+b[3])/2,r=Math.max(b[2]-b[0],b[3]-b[1])*.78;ell(cx,cy,r,r)}
  function circ(b,k){var cx=(b[0]+b[2])/2,cy=(b[1]+b[3])/2,h=b[3]-b[1];ell(cx,cy,Math.max((b[2]-b[0])/2,h*.5)*(k||1.1),h*.58)}
@@ -531,8 +550,8 @@ async function genPdf(D0){
  var its=ITEMS(type,D0.product,D0.rope||"1"),got={};
  if(type==="swing"&&(D0.product||"").indexOf("トランポリン")===0)BK.push("【トランポリン点検結果】"+d.rows.map(function(r){return r[1]+"："+(r[2]||"―")+(r[3]?"（"+String(r[3]).replace(/\n/g," ")+"）":"")}).join("　"));
  its.forEach(function(it,i){var ix=SHEETS[type].items.indexOf(it),r=G.rows[ix];if(ix<0||!r)return;var rr=d.rows[i],v=rr[2],cm=rr[3],qb=CK["Q"+r].b,fz=Math.min(14,Math.max(7,Math.floor((qb[2]-qb[0])/K/5.2))),q=G.q[r];got[r]=1;
-  if(v==="良"&&q){var c=q.good,w=c[2]-c[0],h=c[3]-c[1];ell((c[0]+c[2])/2,(c[1]+c[3])/2,w*.85,Math.min(h*.85,(qb[3]-qb[1])/2-3))}
-  else if(v==="不良"&&q){var c=q.bad,w=c[2]-c[0],h=c[3]-c[1];ell((c[0]+c[2])/2,(c[1]+c[3])/2,w/2+h*.3,Math.min(h*.85,(qb[3]-qb[1])/2-3))}
+  if(v==="良"&&q){var c=q.good,w=c[2]-c[0],h=c[3]-c[1];ell((c[0]+c[2])/2,(c[1]+c[3])/2,w*.5+5.5,Math.min(h*.5+8.5,(qb[3]-qb[1])/2-2),2.4)}
+  else if(v==="不良"&&q){var c=q.bad,w=c[2]-c[0],h=c[3]-c[1];ell((c[0]+c[2])/2,(c[1]+c[3])/2,w*.5+7,Math.min(h*.5+8.5,(qb[3]-qb[1])/2-2),2.4)}
   else if(v){wipe("Q"+r);put("Q"+r,v,{sz:fz,bold:false})}
   mk(it,r,v)});
  G.rows.forEach(function(r){if(got[r])return;var qb=CK["Q"+r].b,fz=Math.min(14,Math.max(7,Math.floor((qb[2]-qb[0])/K/5.2)));wipe("Q"+r);put("Q"+r,"―",{sz:fz,bold:false})});
